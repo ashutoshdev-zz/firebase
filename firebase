@@ -1,0 +1,528 @@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.firebase.com/js/client/2.2.3/firebase.js"></script>
+<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.debug.js"></script>
+<?php
+
+// JPluginHelper::importPlugin("jevents");
+//  $tery = JRegistry::getInstance("jevents");
+//  var_dump($tery);
+//print_r($user);
+//exit;
+// $query = "SELECT distinct u.id, u.username, jev.* FROM #__jevents_vevent as jev LEFT JOIN #__users as u on u.id=jev.created_by order by u.name";
+//  $db	= JFactory::getDBO();
+//  $db->setQuery( $query );
+//  $modules = $db->loadObjectList();
+//  foreach($modules as $m){
+//  print_r(unserialize($m->rawdata));
+//  }
+  //exit;
+ // print_r($modules);
+ 
+
+//   include_once(JPATH_SITE."/components/com_jevents/jevents.defines.php");
+//
+//   $datamodel =new JEventsDataModel();
+//   $event = $datamodel->queryModel->listEventsById( $requestObject->rpid, 0,"icaldb");
+//   var_dump($datamodel);
+//   print_r($event);
+  // exit;
+//$pro = JUserHelper::getProfile($user->id) ;
+require_once( JPATH_BASE . DS . 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'core.php');
+
+$userinfo = CFactory::getActiveProfile();
+print_r($user);
+exit;
+
+?>
+<div id="mb-chatcontainer" style="display: none;" >
+
+
+
+    <div id="chatnodecontainer">
+        <span id="fw-appendtome"></span>
+    </div>
+</div>
+<script id="fw-chatnode" type="text/html">
+
+    <div id="" class="cbx-rght">
+        <div class="fw-head">
+            <span class="res"><img src="http://www.test.macrinc.com/images/resize1.png"></span>
+            <span data-bind="text:username"></span>
+            <span data-bind="click: close"><i class="icon-light icon-off pull-right" style="content:'J';"></i></span>
+            <span data-bind="click: pullDown"><i class="icon-light icon-chevron-down pull-right" style="content:'g';"></i></span>
+        </div>
+        <div class="fw-usersls">
+            <div class="pfx-scrl" style="height:250px; overflow: auto;">
+                <div class="fw-chuser" data-bind="foreach:msglist()" >
+                    <!-- ko if: fromid == <?php echo $user->id; ?> -->
+                    <div>
+                        <table width="100%" cellpadding="0" cellspacing="3">
+                            <tr>
+<!--                                <td  width="35px">
+                                    <img style="width:35px; height: 35px" data-bind="attr:{src:pic}" onerror="this.src='http://dev.macrinc.com/components/com_community/assets/user-Male.png?_=1401465243'" />
+                                </td>-->
+                                <td><div class="bubble-fw me">
+                                        <a href="#" data-bind="text:from"></a>
+                                        <div data-bind="text:msg"></div>
+                                    </div></td>
+                            </tr>
+                        </table>    
+                    </div>
+                    <!-- /ko -->
+                    <!-- ko if: fromid != <?php echo $user->id; ?> -->
+					
+                    <div>
+                        <table width="100%" cellpadding="0" cellspacing="3">
+                            <tr>
+                                <td><div class="bubble-fw you">
+                                        <a href="#" data-bind="text:from"></a>
+                                        <div data-bind="text:msg"></div>
+                                    </div></td>
+<!--                                <td width="35px">
+                                    <img style="width:35px; height: 35px" data-bind="attr:{src:pic}" onerror="this.src='http://dev.macrinc.com/components/com_community/assets/user-Male.png?_=1401465243'" />
+                                </td>-->
+                            </tr>
+                        </table> 
+                    </div>
+                    <!-- /ko -->
+                </div>
+            </div>
+            <div>
+                <table width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td style="padding:0">
+                            <textarea style="width: 100%; height: 40px; margin:0px; resize: none;" data-bind="value:msg, event:{keyup:sendText}"></textarea>
+                        </td>
+                        <td style="padding:0; width: 40px;">
+                            <button style="height: 50px;" data-bind="click:send">Send</button>
+                        </td>
+                    </tr>
+                </table
+            </div>    
+        </div>
+
+    </div>
+
+
+</script>
+
+<style type="text/css">
+    .fw-head span {
+        cursor: pointer;
+    }
+    #chatlist .fw-usersls > div:nth-of-type(2){
+        background: #E6F3F9;
+        padding: 4px 0;
+    }
+    #chatlist .fw-usersls span{
+        color: #2D9BC4;
+        font-weight: bold;
+        padding: 0 5px;
+    }
+    #chatlist .fw-usersls{
+        padding: 3px;
+        min-height: 290px;
+    }
+    #chatlist .fw-head{
+        padding: 3px;
+        background: #2E9CC5;
+        font-weight: bold;
+        color: #fff;
+    }
+    #chatlist .fw-chuser{
+        cursor: pointer;
+    }
+    #chatlist .fw-chuser:hover {
+        background: #E6F3F9;
+    }
+    #chatlist{
+        position: fixed;
+        z-index: 9999;
+        right: 10px;
+        bottom: 0;
+        background: #EBF0F3;
+        border: 1px solid #2E9CC5;
+        border-bottom: 0px;
+        width: 250px;
+        font-size: 16px;
+    }
+    #chatnodecontainer{
+        position: fixed;
+        z-index: 9999;
+        right: 10px;
+        bottom: 0;
+        font-size: 16px;
+		min-width:225px;
+    }
+    .chatnode{
+        z-index: 9999;
+        right: 10px;
+        bottom: 0;
+        background: #EBF0F3;
+        border: 1px solid #2E9CC5;
+        border-bottom: 0px;
+        font-size: 16px;
+        display: inline-block;
+		min-width:223px;
+		width:320px;
+    }
+    .chatnode .fw-head{
+        padding: 3px;
+        background: #2E9CC5;
+        font-weight: bold;
+        color: #fff;
+    }
+    .chatnode .fw-usersls{
+        padding: 3px;
+        min-height: 290px;
+    }
+    .rightMsgrFw {
+        text-align: right;
+    }
+    .bubble-fw a {
+        color:#00B4DC
+    }
+    .bubble-fw{
+        margin: 0;
+        color: #0C5069;
+        font-size: 12px;
+        background-color: #F2F2F2;
+        border-radius: 5px;
+        box-shadow: 0 0 6px #B2B2B2;
+        display: inline-block;
+        padding: 10px 18px;
+        position: relative;
+        vertical-align: top;
+    }
+
+    .bubble-fw:before {
+        background-color: #F2F2F2;
+        content: "\00a0";
+        display: block;
+        height: 16px;
+        position: absolute;
+        top: 11px;
+        transform:             rotate( 29deg ) skew( -35deg );
+        -moz-transform:    rotate( 29deg ) skew( -35deg );
+        -ms-transform:     rotate( 29deg ) skew( -35deg );
+        -o-transform:      rotate( 29deg ) skew( -35deg );
+        -webkit-transform: rotate( 29deg ) skew( -35deg );
+        width:  20px;
+    }
+
+    .me {
+        float: left;   
+        margin: 5px 0px 5px 20px;         
+        min-width: 245px;
+    }
+
+    .me:before {
+        box-shadow: -2px 2px 2px 0 rgba( 178, 178, 178, .4 );
+        left: -9px;           
+    }
+
+    .you {
+        float: right;    
+        margin: 5px 20px 5px 0px;
+        min-width: 245px;
+    }
+
+    .you:before {
+        box-shadow: 2px -2px 2px 0 rgba( 178, 178, 178, .4 );
+        right: -9px;    
+    }
+</style>
+<script type="text/javascript">
+    (function(jQuery) {
+        jQuery.QueryString = (function(a) {
+            if (a == "")
+                return {};
+            var b = {};
+            for (var i = 0; i < a.length; ++i)
+            {
+                var p = a[i].split('=');
+                if (p.length != 2)
+                    continue;
+                b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+            }
+            return b;
+        })(window.location.search.substr(1).split('&'))
+    })(jQuery);
+    var loc = window.location.href;
+    jQuery(document).ready(function() {
+
+        /*To hide the chat title....*/
+        jQuery('#Mod183 .module-title').hide();
+
+        var chatboxVM = function(username, userid, evid) {
+            var me = this;
+            me.userid = userid;
+            me.username = username;
+            me.evid = evid;
+            me.node = null;
+            me.msglist = ko.observableArray([]);
+            me.msg = ko.observable();
+            me.chatbox = null;
+            me.pullDown = function(d, e) {
+                gt = jQuery(e.currentTarget).parent().next();
+                if (jQuery(e.currentTarget).parent().next().is(":visible")) {
+                    jQuery(e.currentTarget).parent().next().fadeOut();
+                    
+                    jQuery('span i')[1].removeClass('icon-chevron-down');
+                     setTimeout(function() {
+                  jQuery('span i')[1].addClass('icon-chevron-up');
+                }, 500);
+                    
+                   
+                    
+                } else {
+                    jQuery(e.currentTarget).parent().next().fadeIn();
+                     jQuery('span i')[1].addClass('icon-chevron-down');
+                    jQuery('span i')[1].removeClass('icon-chevron-up');
+                }
+            }
+            me.close = function(d, e) {
+                jQuery(e.currentTarget).parent().parent().parent().remove();
+                delete me;
+            }
+            me.send = function(d, e) {
+                me.chatbox.push(
+                        {
+                            from: me.username,
+                            fromid: me.userid,
+                            pic: '/' + '<?php echo $userinfo->_avatar; ?>',
+                            evid: me.evid,
+                            msg: me.msg(),
+                            time: (new Date()).toString()
+
+                        }
+                );
+                jQuery(e.currentTarget).parent().prev().find('textarea').val('');
+            };
+            me.sendText = function(d, e) {
+                me.msg(jQuery(e.currentTarget).val());
+                if (e.keyCode == 13) {
+                    me.chatbox.push(
+                            {
+                                from: me.username,
+                                fromid: me.userid,
+                                pic: '/' + '<?php echo $userinfo->_avatar; ?>',
+                                evid: me.evid,
+                                msg: me.msg(),
+                                time: (new Date()).toString()
+                            }
+                    );
+                    jQuery(e.currentTarget).val('');
+                }
+            };
+            me._setup = function() {
+                me.node = '#fw-chnode-' + me.evid;
+                var gh = new Firebase('https://incandescent-fire-9384.firebaseio.com/chatbox/');
+                gh.once("value",function(v){
+                    var val = v.val();
+                    for(i in val){
+                        var a = new moment.unix(val[i].time);
+                        var b = new moment();
+                        var c = Math.abs(a.diff(b));
+                        if(c > 82400000){
+                            gh.child(i).remove();
+                        }
+                    }   
+                });
+                me.chatbox = new Firebase('https://incandescent-fire-9384.firebaseio.com/chatbox/' + eveid + "/chat");
+                me.chatbox.parent().once("value",function(v){
+                    if(v.hasChild("time")){
+                        
+                    }else{
+                        me.chatbox.parent().child("time").set(moment().unix());
+                    } 
+                });
+                me.chatbox.on("value", function(v) {
+                    var dv = v.val();
+                    var data = [];
+                    for (i in dv) {
+                        data.push(dv[i]);
+                    }
+                    me.msglist(data);
+                    var scrdiv = jQuery(me.node + ' .pfx-scrl');
+                    scrdiv.scrollTop(scrdiv[0].scrollHeight);
+                });
+                setTimeout(function() {
+                    jQuery("#fw-appendtome").next().resizable({handles:'s, w'});
+                    
+                }, 4000);
+              
+            }
+            me._setup();
+
+        }
+
+
+        if (loc.search('option=com_channels&controller=channels&task=mpDetails&mpid=') != -1 || loc.search('option=com_channels&controller=channels&task=mpDetails&mpid=') != -1 || loc.search('option=com_yendifvideoshare&view=video&id=') != -1) { // 'option=com_jevents&task=icalrepeat.detail&evid='
+//            eveDetails = loc.split('&');
+//            eveDetails[1]//task=icalrepeat.detail
+//            eveid = eveDetails[3].split('=');//evid=38 // eveDetails[2]
+//            eveid = eveid[1];
+            eveid = jQuery.QueryString.id | jQuery.QueryString.mpid;
+            //eveid = jQuery.QueryString.Itemid | jQuery.QueryString.mpid;
+            chat = new chatboxVM('<?php echo($user->username) ? $user->name : $user->username ?>',<?php echo $user->id; ?>, eveid);
+            var tmpl = jQuery('#fw-chatnode').html();
+            var nodeID = "#fw-chnode-" + eveid;
+            jQuery('#fw-appendtome').after('<div id="fw-chnode-' + eveid + '" class="chatnode">' + tmpl + '</div>');
+            
+            setTimeout(function() {
+                ko.applyBindings(chat, jQuery(nodeID)[0]);
+                jQuery('#mb-chatcontainer').show();
+            }, 1000);
+        }
+        if(jQuery.QueryString.option == "com_yendifvideoshare"){
+            jQuery('#ja-topbar,nav,header, footer .t3-copyright').remove();
+            jQuery('footer').css({height:0,width:0});
+            jQuery('body').css({padding:0});
+        }
+    });
+     /**
+    * its for  the ui-resizable 
+     */
+    var ViewRmv=function(){
+    var ths=this;
+    ths.rmvclass=ko.observable();
+    ths.rmvclass.subscribe(function(){
+       $(".ui-resizable").remove(); 
+    });
+   }
+  //ko.applyBindings(new ViewRmv());
+   jQuery(document).ready(function(){
+      
+        setTimeout(function() {
+                 jQuery('#fw-chnode-'+eveid).removeClass('ui-resizable');
+                }, 4000);
+   
+   });
+</script>
+
+
+<style type="text/css">
+       .chatnode .fw-usersls {
+        padding: 3px;
+        min-height: 290px;
+        position: relative !important;
+      }
+      .ui-icon-gripsmall-diagonal-se {
+        background-position: -64px -224px;
+        position: absolute!important;
+        top: 0!important;
+      }
+      [class^="icon-"].pull-right, [class*=" icon-"].pull-right {
+  margin-left:9px !important;
+}
+[class^="icon-"].pull-right, [class*=" icon-"].pull-right {
+  margin-right: 0 !important;
+}
+
+.ui-icon-gripsmall-diagonal-se {
+  background-position: -16px -79px !important;
+  position: absolute!important;
+  top: 0!important;
+  background-color: #fff;
+  padding: 1px 0;
+  margin: 3px 3px 0 5px;
+}
+textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+    border: 1px solid #ccc;
+    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s, width 0.7s ease 0s;
+    /*width: 95% !important;*/
+}
+.chatnode .fw-head {
+    min-width: 217px !important;
+}
+#fw-chnode{left: 0 !important;}
+.fw-head > span {
+    padding-left: 24px;
+}
+.res {
+    height: 17px;
+    left: -20px;
+    position: absolute;
+    top: 2px;
+    width: 16px;
+}
+/*-------------------------*/
+
+
+/*.fw-usersls{
+    height: 100%;
+    float: left !important;
+    min-height: 290px !important;
+    max-height: 100% !important;
+}
+.pfx-scrl{
+    height: 80% !important;
+}
+.cbx-rght {
+    float: left;
+    max-height:500px !important;
+	width:100%;
+}*/
+
+/*#chatnodecontainer{
+	min-height:332px !important;
+	background:#ebf0f3;
+	min-width: 300px !important;
+	}
+.chatnode .fw-usersls {
+    height: 100% !important;
+    min-height: 290px;
+    padding: 3px;
+    position: relative !important;
+}
+.pfx-scrl {
+    overflow-y: scroll;
+    width: 100%;
+	bottom: 0;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+}
+.chatnode .fw-usersls {
+    float: left;
+    height: 100% !important;
+    min-height: 290px;
+    padding: 3px;
+    position: relative !important;
+}
+.fw-usersls > div {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+}
+#fw-chnode-evid{
+	min-width:300px !important;
+	}
+.chatnode{
+	min-width:300px !important;
+	}*/
+	
+
+/*#chatnodecontainer{max-height: 557px;
+	}
+.chatnode{
+	min-width: 350px;
+	}
+.chatnode .fw-usersls {
+    float: left;
+	width:100%;
+}
+.fw-usersls > div {
+    bottom: 0;
+    float: left;
+    width: 100%;
+}
+.pfx-scrl {
+    float: left;
+    height: 100%;
+    overflow: auto;
+}*/
+</style>
